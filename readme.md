@@ -19,8 +19,7 @@ Edit app/assets/javascripts/application.js and add
 //= require cleditor
 ```
 
-
-and if you want the default styles, in app/assets/stylesheets/application.css add
+And in app/assets/stylesheets/application.css add
 
 ```css
 /*
@@ -41,10 +40,10 @@ $('textarea').cleditor();
 
 Please see <http://premiumsoftware.net/cleditor/docs/GettingStarted.html> guide for customization
 
-### Credits
+## Credits
 
 The jQuery code was written by Chris Landowski
 
 Project links:
-<https://github.com/cleditor/cleditor>
+<https://github.com/cleditor/cleditor>  
 <http://premiumsoftware.net/cleditor/>
