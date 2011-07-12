@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Sean Behan"]
   s.email       = ["bseanvt@gmail.com"]
-  s.homepage    = "https://github.com/bseanvt/selectbox_rails"
+  s.homepage    = "https://github.com/bseanvt/cleditor_rails"
   s.summary     = %q{jQuery CLEditor for Rails 3.1 Asset Pipeline}
   s.description = %q{jQuery CLEditor for Rails 3.1 Asset Pipeline}
 
