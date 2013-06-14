@@ -1,5 +1,5 @@
-/**
- @preserve CLEditor WYSIWYG HTML Editor v1.3.0
+﻿/*!
+ CLEditor WYSIWYG HTML Editor v1.4.0
  http://premiumsoftware.net/cleditor
  requires jQuery v1.4.2 or later
 
@@ -17,7 +17,7 @@
 
     // Define the defaults used for all new cleditor instances
     defaultOptions: {
-      width:        500, // width not including margins, borders or padding
+      width:        'auto', // width not including margins, borders or padding
       height:       250, // height not including margins, borders or padding
       controls:     // controls to add to the toolbar
                     "bold italic underline strikethrough subscript superscript | font size " +
@@ -41,7 +41,7 @@
                     [["Paragraph", "<p>"], ["Header 1", "<h1>"], ["Header 2", "<h2>"],
                     ["Header 3", "<h3>"],  ["Header 4","<h4>"],  ["Header 5","<h5>"],
                     ["Header 6","<h6>"]],
-      useCSS:       false, // use CSS to style HTML when possible (not supported in ie)
+      useCSS:       true, // use CSS to style HTML when possible (not supported in ie)
       docType:      // Document type contained within the editor
                     '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
       docCSSFile:   // CSS file used to style the document contained within the editor
@@ -147,12 +147,15 @@
   PROMPT_CLASS     = "cleditorPrompt",  // prompt popup divs inside body
   MSG_CLASS        = "cleditorMsg",     // message popup div inside body
 
-  // Test for ie
-  ie = $.browser.msie,
-  ie6 = /msie\s6/i.test(navigator.userAgent),
+  // Browser detection
+  ua = navigator.userAgent.toLowerCase(),
+  ie = /msie/.test(ua),
+  ie6 = /msie\s6/.test(ua),
+  webkit = /webkit/.test(ua),
+  mozilla = ua.indexOf("compatible") < 0 && /mozilla/.test(ua),
 
   // Test for iPhone/iTouch/iPad
-  iOS = /iphone|ipad|ipod/i.test(navigator.userAgent),
+  iOS = /iphone|ipad|ipod/i.test(ua),
 
   // Popups are created once as needed and shared by all editor instances
   popups = {},
@@ -218,6 +221,9 @@
     var $group = $(DIV_TAG)
       .addClass(GROUP_CLASS)
       .appendTo($toolbar);
+
+    // Initialize the group width
+    var groupWidth = 0;
     
     // Add the buttons to the toolbar
     $.each(options.controls.split(" "), function(idx, buttonName) {
@@ -230,6 +236,10 @@
         var $div = $(DIV_TAG)
           .addClass(DIVIDER_CLASS)
           .appendTo($group);
+
+        // Update the group width
+        $group.width(groupWidth + 1);
+        groupWidth = 0;
 
         // Create a new group
         $group = $(DIV_TAG)
@@ -252,6 +262,10 @@
           .bind(CLICK, $.proxy(buttonClick, editor))
           .appendTo($group)
           .hover(hoverEnter, hoverLeave);
+
+        // Update the group width
+        groupWidth += 24;
+        $group.width(groupWidth + 1);
 
         // Prepare the button image
         var map = {};
@@ -750,19 +764,26 @@
     return editor.$frame[0].contentWindow.getSelection();
   }
 
-  // Returns the hex value for the passed in string.
-  //   hex("rgb(255, 0, 0)"); // #FF0000
-  //   hex("#FF0000"); // #FF0000
-  //   hex("#F00"); // #FF0000
+  // hex - returns the hex value for the passed in color string
   function hex(s) {
-    var m = /rgba?\((\d+), (\d+), (\d+)/.exec(s),
-      c = s.split("");
+
+    // hex("rgb(255, 0, 0)") returns #FF0000
+    var m = /rgba?\((\d+), (\d+), (\d+)/.exec(s);
     if (m) {
-      s = ( m[1] << 16 | m[2] << 8 | m[3] ).toString(16);
+      s = (m[1] << 16 | m[2] << 8 | m[3]).toString(16);
       while (s.length < 6)
         s = "0" + s;
+      return "#" + s;
     }
-    return "#" + (s.length == 6 ? s : c[1] + c[1] + c[2] + c[2] + c[3] + c[3]);
+
+    // hex("#F00") returns #FF0000
+    var c = s.split("");
+    if (s.length == 4)
+      return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3];
+
+    // hex("#FF0000") returns #FF0000
+    return s;
+
   }
 
   // hidePopups - hides all popups
@@ -864,7 +885,7 @@
     }
 
     // Update the textarea when the iframe loses focus
-    ($.browser.mozilla ? $doc : $(contentWindow)).blur(function() {
+    (mozilla ? $doc : $(contentWindow)).blur(function() {
       updateTextArea(editor, true);
     });
 
@@ -912,7 +933,7 @@
   function refreshButtons(editor) {
 
     // Webkit requires focus before queryCommandEnabled will return anything but false
-    if (!iOS && $.browser.webkit && !editor.focused) {
+    if (!iOS && webkit && !editor.focused) {
       editor.$frame[0].contentWindow.focus();
       window.focus();
       editor.focused = true;
